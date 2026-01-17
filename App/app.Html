@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Net AI | 0.0.6</title>
+    <title id="tab-title">Net AI</title>
     <link rel="icon" href="https://img.icons8.com/fluency/48/artificial-intelligence.png" type="image/png">
     <style>
         :root {
@@ -23,7 +23,7 @@
             --sidebar-bg: rgba(255, 255, 255, 0.8);
         }
 
-        * { box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s, box-shadow 0.3s; }
 
         body {
             margin: 0; height: 100vh; display: flex;
@@ -32,7 +32,6 @@
             color: var(--text-main); overflow: hidden;
         }
 
-        /* ===== SIDEBAR ===== */
         .SideBar {
             width: 220px; background: var(--sidebar-bg);
             backdrop-filter: blur(15px); padding: 25px 15px;
@@ -46,7 +45,8 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* ===== MAIN CONTENT ===== */
+        .SideBar p { cursor: pointer; }
+
         .Main { flex: 1; display: flex; flex-direction: column; position: relative; }
 
         .TopBar {
@@ -55,64 +55,85 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        .Chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
-        border-left: 4px solid var(--primary-glow);
-        box-shadow: inset 5px 0 10px -5px var(--primary-glow); }
+        .Chat { 
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; 
+            border-left: 3px solid var(--primary-glow);
+            box-shadow: inset 15px 0 30px -15px var(--primary-glow);
+        }
 
         .Message {
             max-width: 80%; padding: 14px 18px; border-radius: 18px;
             line-height: 1.5; animation: msgIn 0.3s ease-out;
+            position: relative;
         }
 
         @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .User { align-self: flex-end; background: var(--primary-glow); color: white; border-bottom-right-radius: 2px; }
         
-        /* RESTORED LEFT OUTLINE */
         .AI { 
             align-self: flex-start; background: var(--chat-bg); 
             border: 1px solid var(--glass-border); 
             border-left: 5px solid var(--primary-glow); 
             border-bottom-left-radius: 2px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* THINKING PULSE ANIMATION */
-        .ThinkingPulse {
-            animation: pulseGlow 1.5s infinite;
-        }
+        .ThinkingPulse { animation: pulseGlow 1.5s infinite; }
         @keyframes pulseGlow {
             0% { border-left-color: var(--primary-glow); opacity: 1; }
-            50% { border-left-color: white; opacity: 0.7; }
+            50% { border-left-color: white; opacity: 0.6; }
             100% { border-left-color: var(--primary-glow); opacity: 1; }
         }
 
-        /* ===== BUTTONS & SETTINGS ===== */
         .QuickBtn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--primary-glow);
-            color: var(--text-main); padding: 8px 15px; border-radius: 20px;
-            cursor: pointer; margin: 5px 5px 0 0; font-size: 13px;
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--primary-glow);
+            color: var(--text-main); 
+            padding: 8px 15px; 
+            border-radius: 20px;
+            cursor: pointer; 
+            margin: 5px 5px 0 0; 
+            font-size: 13px; 
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .QuickBtn:hover { background: var(--primary-glow); color: white; }
 
-        #settingsModal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;
+        .QuickBtn:hover {
+            background: var(--primary-glow);
+            color: white;
+            box-shadow: 0 0 15px var(--primary-glow);
+            transform: translateY(-2px);
         }
-
-        .SettingsBox { background: var(--chat-bg); padding: 25px; border-radius: 20px; border: 2px solid var(--primary-glow); width: 320px; }
 
         .InputArea { padding: 20px; display: flex; gap: 10px; }
         input[type="text"] {
             flex: 1; padding: 15px 20px; border-radius: 25px;
             border: 1px solid var(--glass-border); background: var(--chat-bg); color: var(--text-main); outline: none;
         }
+        input:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .SendBtn { padding: 0 25px; border-radius: 25px; border: none; background: var(--primary-glow); color: white; cursor: pointer; font-weight: bold; }
+        .StopBtn { padding: 0 15px; border-radius: 25px; border: none; background: #ff4a4a; color: white; cursor: pointer; display: none; font-weight: bold; }
+
+        /* MODAL OVERLAYS */
+        .ModalContainer {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;
+        }
+        .SettingsBox, .InfoBox, .VersonBox { background: var(--chat-bg); padding: 25px; border-radius: 20px; border: 2px solid var(--primary-glow); width: 320px; }
+        
+        /* CLOSE BUTTON FOR INFO/LOG */
+        .CloseBtn {
+            width: 100%; padding: 10px; margin-top: 15px; border-radius: 20px;
+            border: 1px solid var(--primary-glow); background: transparent;
+            color: var(--text-main); cursor: pointer; font-weight: bold;
+        }
+        .CloseBtn:hover { background: var(--primary-glow); color: white; }
     </style>
 </head>
 <body>
 
-<div id="settingsModal">
+<div id="settingsModal" class="ModalContainer">
     <div class="SettingsBox">
         <h3>AI Settings</h3>
         <label>Theme</label>
@@ -122,74 +143,105 @@
         </select>
         <label>Glow Color</label>
         <input type="color" id="colorPicker" style="width:100%; height:35px; margin-bottom:15px;" oninput="changeGlow(this.value)">
-        <label>Thinking Speed</label>
+        <label>Intelligence Mode</label>
         <select id="speedMode" style="width:100%; padding:8px; margin-bottom:20px;">
-            <option value="200">Fast</option>
-            <option value="1200">Normal</option>
-            <option value="3000">Deep Think</option>
+            <option value="200">Fast Mode</option>
+            <option value="1200" selected>Normal Mode</option>
+            <option value="4000">Deep Think Mode</option>
         </select>
-        <button class="SendBtn" style="width:100%; height:40px;" onclick="toggleSettings()">Save</button>
+        <button class="SendBtn" style="width:100%;" onclick="closeModal('settingsModal')">Save</button>
+    </div>
+</div>
+
+<div id="infoModal" class="ModalContainer">
+    <div class="InfoBox">
+        <h3>About Net AI</h3>
+        <p><b>Net AI</b> is a lightweight logical assistant built for high-speed performance.</p>
+        <p>Built by: <b>Aaradhya</b></p>
+        <button class="CloseBtn" onclick="closeModal('infoModal')">Close</button>
+    </div>
+</div>
+
+<div id="versonModal" class="ModalContainer">
+    <div class="VersonBox">
+        <h3>Update Log</h3>
+        <div style="font-size: 13px; text-align: left; max-height: 200px; overflow-y: auto;">
+            <p><b>v0.1.0<i> New!</i></b><br>+ Html creation were added</p>
+            <p><b>v0.0.9</b><br>+ Ai rebuild</p>
+            <p><b>v0.0.8</b><br>+ Added Info and Version boxes<br>+ Added Close buttons<br>+ Sidebar links fixed</p>
+            <p><b>v0.0.7</b><br>+ Added Hover Glow buttons<br>+ Geometry & Algebra logic added</p>
+            <p><b>v0.0.5 - 6</b><br>+ Settings were completed</p>
+            <p><b>v0.0.4</b><br>+ Light mode added</p>
+            <p><b>v0.0.3</b><br>+ Fast mode added</p>
+            <p><b>v0.0.2</b><br>+ Ui changed</p>
+            <p><b>v0.0.1</b><br>+ Net AI Core release</p>
+        </div>
+        <button class="CloseBtn" onclick="closeModal('versonModal')">Close</button>
     </div>
 </div>
 
 <div class="SideBar">
     <h2>NET AI</h2>
-    <p>⚡ Math & Logic</p>
-    <p>📐 Geometry</p>
-    <p>algebra x = y</p>
-    <div style="margin-top:auto; font-size:12px; opacity:0.6;">By Aaradhya v0.0.6</div>
+    <p onclick="openModal('infoModal')">⚡ About Net</p>
+    <p onclick="quickAsk('Geometry')">📐 Geometry</p>
+    <p onclick="quickAsk('Algebra')">✖️ Algebra</p>
+    <p onclick="openModal('versonModal')">📜 Update Log</p>
+    <div id="sidebar-version" style="margin-top:auto; font-size:12px; opacity:0.6;"></div>
 </div>
 
 <div class="Main">
     <div class="TopBar">
-        <div class="TopBarText">Net AI</div>
-        <button onclick="toggleSettings()" style="background:none; border:none; cursor:pointer; font-size:20px;">⚙️</button>
+        <div id="topbar-text" class="TopBarText">Net AI</div>
+        <button onclick="openModal('settingsModal')" style="background:none; border:none; cursor:pointer; font-size:20px;">⚙️</button>
     </div>
-
     <div class="Chat" id="chat"></div>
-
     <div class="InputArea">
-        <input id="input" type="text" placeholder="Ask something..." onkeydown="if(event.key==='Enter')send()">
-        <button class="SendBtn" onclick="send()">SEND</button>
+        <input id="input" type="text" placeholder="Ask Net AI..." onkeydown="if(event.key==='Enter')send()">
+        <button id="sendBtn" class="SendBtn" onclick="send()">SEND</button>
+        <button id="stopBtn" class="StopBtn" onclick="stopAI()">⏹ STOP</button>
     </div>
 </div>
 
 <script>
+    const NET_VERSION = "0.1.0"; 
+
     const chat = document.getElementById("chat");
     const input = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    
+    let aiTimeout;
+    let isThinking = false;
+    let lastMsg = "";
+    let repeatCount = 0;
 
     window.onload = () => {
+        document.getElementById("tab-title").innerText = `Net AI | ${NET_VERSION}`;
+        document.getElementById("topbar-text").innerText = `Net AI | v${NET_VERSION}`;
+        document.getElementById("sidebar-version").innerText = `By Aaradhya v${NET_VERSION}`;
+
         const savedGlow = localStorage.getItem("netAiGlow") || "#ff924a";
         const savedTheme = localStorage.getItem("netAiTheme") || "dark";
         changeGlow(savedGlow);
         changeTheme(savedTheme);
-        document.getElementById("colorPicker").value = savedGlow;
-        document.getElementById("themeMode").value = savedTheme;
         welcomeMessage();
     };
 
     function welcomeMessage() {
-        const welcome = `
-            <b>👋 Hello! I'm Net AI.</b><br>
-            I'm optimized for math and quick questions. Try one of these:
+        add(`<b>👋 Net AI v${NET_VERSION}</b><br>Pick a catagory to start with!
             <div style="margin-top:10px">
                 <button class="QuickBtn" onclick="quickAsk('Maths')">Maths</button>
                 <button class="QuickBtn" onclick="quickAsk('Geometry')">Geometry</button>
                 <button class="QuickBtn" onclick="quickAsk('Algebra')">Algebra</button>
-                <button class="QuickBtn" onclick="quickAsk('Roblox')">Net | Roblox</button>
-            </div>
-        `;
-        add(welcome, "AI");
+            </div>`, "AI");
     }
 
-    function quickAsk(topic) {
-        input.value = `Tell me about ${topic}`;
-        send();
-    }
+    function openModal(id) { document.getElementById(id).style.display = "flex"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
 
-    function toggleSettings() {
-        const modal = document.getElementById("settingsModal");
-        modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+    function quickAsk(topic) { 
+        input.value = "Tell me about " + topic; 
+        send(); 
     }
 
     function changeGlow(color) {
@@ -202,22 +254,51 @@
         localStorage.setItem("netAiTheme", mode);
     }
 
+    function stopAI() {
+        clearTimeout(aiTimeout);
+        isThinking = false;
+        input.disabled = false;
+        sendBtn.style.display = "block";
+        stopBtn.style.display = "none";
+        const thinking = document.querySelector(".ThinkingPulse");
+        if(thinking) {
+            thinking.innerHTML = "<i>Process halted.</i>";
+            thinking.classList.remove("ThinkingPulse");
+        }
+    }
+
     function send() {
         const text = input.value.trim();
-        if (!text) return;
+        if (!text || isThinking) return;
+
+        if (text.toLowerCase() === lastMsg.toLowerCase()) repeatCount++;
+        else { repeatCount = 0; lastMsg = text; }
+
+        isThinking = true;
+        input.disabled = true;
+        sendBtn.style.display = "none";
+        stopBtn.style.display = "block";
+
         add(text, "User");
         input.value = "";
 
-        const speed = parseInt(document.getElementById("speedMode").value);
-        const typingId = "typing_" + Date.now();
-        add("Net AI is thinking...", "AI ThinkingPulse", typingId);
+        const speedSelect = document.getElementById("speedMode");
+        const speed = parseInt(speedSelect.value);
+        const mode = speedSelect.options[speedSelect.selectedIndex].text;
 
-        setTimeout(() => {
+        const typingId = "typing_" + Date.now();
+        add(`Thinking (${mode})...`, "AI ThinkingPulse", typingId);
+
+        aiTimeout = setTimeout(() => {
             const botMessage = document.getElementById(typingId);
             if (botMessage) {
                 botMessage.classList.remove("ThinkingPulse");
-                botMessage.innerHTML = reply(text);
+                botMessage.innerHTML = reply(text, mode);
             }
+            isThinking = false;
+            input.disabled = false;
+            sendBtn.style.display = "block";
+            stopBtn.style.display = "none";
             chat.scrollTop = chat.scrollHeight;
         }, speed);
     }
@@ -231,38 +312,183 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    function reply(msg) {
-        const lower = msg.toLowerCase();
-        
-        // INTERACTIVE REPLIES
-        if (lower.includes("pizza")) return "I can't eat 🍕, but I can calculate its area using πr²!";
-        if (lower.includes("math")) return "Math is the language of logic! I can solve equations or explain concepts.";
-        if (lower.includes("geometry")) return "Geometry is all about shapes. Ask me about area, perimeter, or circles! 📐";
-        if (lower.includes("algebra")) return "Algebra helps us find unknown values like 'x'. Ask me to solve a problem! ✖️";
-        if (lower.includes("hi") || lower.includes("hello")) return "Hello! I'm Net AI, made by Aaradhya. Ready to solve?";
-        if (lower.includes("made you") || lower.includes("creator")) return "I was made by the developer <b>Aaradhya</b>!";
-        if (lower.includes("radius") || lower.includes("circle") || lower.includes("diameter")) {
-            return "⭕ <b>Circle Study:</b><br>• Diameter = 2r<br>• Area = πr²<br>• Circumference = 2πr";
-        }
-        if (lower.includes("nimy")) return "Did you mean shital";
-        if (lower.includes("bander")) return "Did you mean ashay";
-        if (lower.includes("1tone")) return "Did you mean soham.b";
-        if (lower.includes("dumb")) return "Im using soham.b ai , very small IQ";
-        if (lower.includes("pm of india")) return "N.Modi";
-        if (lower.includes("prime minister")) return "N.Modi";
-        if (lower.includes("who is")) return "Im weak in gk";
+    function reply(msg, mode) {
+        let lower = msg.toLowerCase().replace(/[?!.]/g, "");
+        let d = new Date();
 
-        if (lower.includes("roblox")) return "Roblox is a platform where users make games and users play games, it is very popular | here is the website   <b>  https://www.roblox.com/home  </b>   roblox.com  ";
-        // MATH EVALUATION
-        const mathExpression = msg.replace(/[^-e0-9+*/().^]/g, "");
-        if (mathExpression && /[\d]/.test(mathExpression)) {
+        if (repeatCount === 1) return "I just told you that! But fine...";
+        if (repeatCount >= 2) return "Stop repeating! My circuits are getting tired. 😫";
+
+        if (lower.includes("roblox")) return "<b>Search Result:</b> <a href='https://roblox.com' target='_blank'>roblox.com</a><i>It is a plateform targeted to share <b>Experiences</b></i>";
+        if (lower.includes("youtube")) return "<b>Search Result:</b> <a href='https://youtube.com' target='_blank'>youtube.com</a><i>It is a plateform targeted to share <b>Content/Videos/Shorts/Posts/Polls</b></i>";
+        if (lower.includes("facebook")) return "<b>Search Result:</b> <a href='https://facebook.com' target='_blank'>facebook.com</a><i>It is a plateform targeted to share <b>Shorts/Posts</b></i>";
+        if (lower.includes("instagram")) return "<b>Search Result:</b> <a href='https://instagram.com' target='_blank'>instagram.com</a><i>It is a plateform targeted to share <b>Posts/Stories</b></i>";
+        if (lower.includes("whatsapp")) return "<b>Search Result:</b> <a href='https://whatsapp.com' target='_blank'>whatsapp.com</a><i>It is a plateform targeted to <b>Communicate</b></i>";
+        
+        if (lower.includes("version")) return `Currently running on <b>Net AI v${NET_VERSION}</b>.`;
+        if (lower.includes("made you")) return "I'm made in Visual Studio Code by Aaradhya.";
+        if (lower.includes("hi") || lower.includes("hello")) return "Hello! How can I assist you with math or logic today?";
+        
+
+// 1. Check for 2-day offsets first (most specific)
+// 1. Check for 2-day offsets first
+        // Catches: "yesterday", "yesturday", "yesteday" + "before"
+        if (/yest[er|u|a]*day/.test(lower) && lower.includes("before")) {
+            d.setDate(d.getDate() - 2);
+            return `📅 Day before yesterday was <b>${d.toDateString()}</b>.`;
+        }
+        // Catches: "tomorrow", "tommorow", "tomoro" + "after"
+        if (/tom[o|m]*r[o|m]*w/.test(lower) && lower.includes("after")) {
+            d.setDate(d.getDate() + 2);
+            return `📅 Day after tomorrow is <b>${d.toDateString()}</b>.`;
+        }
+
+        // 2. Check for 1-day offsets
+        // Catches spelling errors for Tomorrow
+        if (/tom[o|m]*r[o|m]*w/.test(lower)) {
+            d.setDate(d.getDate() + 1);
+            return `📅 Tomorrow is <b>${d.toDateString()}</b>.`;
+        }
+        // Catches spelling errors for Yesterday
+        if (/yest[er|u|a]*day/.test(lower)) {
+            d.setDate(d.getDate() - 1);
+            return `📅 Yesterday was <b>${d.toDateString()}</b>.`;
+        }
+
+        // 3. Today / Date
+        if (lower.includes("date") || lower.includes("today") || lower.includes("tday")) {
+            return `📅 Today is <b>${d.toDateString()}</b>.`;
+        }
+
+// Catches: "make", "create", "build", "html" even with common typos
+// Expanded fuzzy trigger for: make, create, build, html, css, website, page
+// 1. Detect content between <Html> and </Html> (Fuzzy)
+// 1. Your trigger remains exactly the same
+ const htmlTrigger = /ma[k|ke]|cre[a|e|t]*te|bu[i|l]*ld|ht[m|l]*|cs[s]*|webs[i|y]te|p[a|e]ge/;
+
+        if (htmlTrigger.test(lower)) {
+            // 1. EXTRACT DATA FROM PROMPT
+            // Fuzzy color detection (red, blue, green, etc.)
+            let colorMatch = lower.match(/(red|blue|green|yellow|purple|pink|orange|black|white)/i);
+            let bgColor = colorMatch ? colorMatch[0] : "#0f0f0f"; // Default if not found
+
+            // Detect if user wants center
+            let isCentered = lower.includes("center") || lower.includes("middle");
+            let alignment = isCentered ? "display: flex; justify-content: center; align-items: center; height: 100vh;" : "padding: 20px;";
+
+            // Get the main text/topic
+            let topic = lower.replace(htmlTrigger, "").replace(/(center|middle|with|color|red|blue|green|yellow|purple|pink|orange|black|white|add|text)/gi, "").trim() || "New Project";
+
+            // 2. BUILD DYNAMIC CODE
+            let generatedCode = '@!DOCTYPE html@\n' +
+                '@html@\n' +
+                ' @head@\n' +
+                '  @style@\n' +
+                '    body { background: ' + bgColor + '; color: white; font-family: sans-serif; margin: 0; ' + alignment + ' }\n' +
+                '    .box { border: 2px solid rgba(255,255,255,0.3); padding: 30px; border-radius: 15px; text-align: center; background: rgba(0,0,0,0.5); }\n' +
+                '  @/style@\n' +
+                ' @/head@\n' +
+                ' @body@\n' +
+                '  @div class="box"@\n' +
+                '    @h1@' + topic.toUpperCase() + '@/h1@\n' +
+                '    @h3@' + topic + ' Content@/h3@\n' +
+                '    @p@Technically generated with ' + bgColor + ' background.@/p@\n' +
+                '  @/div@\n' +
+                ' @/body@\n' +
+                '@/html@';
+
+            // 3. CONVERSION & HIGHLIGHTING
+            let finalCode = generatedCode.replace(/@(.*?)@/g, '<$1>');
+            
+            let highlighted = finalCode
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/(&lt;\/?html&gt;)/gi, '<span style="color: #569cd6;">$1</span>') // Blue html
+                .replace(/(&lt;\/?div.*?&gt;)/gi, '<span style="color: #ff4d4d;">$1</span>') // Red div
+                .replace(/(&lt;\/?(style|head|body|h1|h3|p)&gt;)/gi, '<span style="color: #c586c0;">$1</span>');
+
+            return `
+                <div style="border: 1px solid var(--primary-glow); padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.3);">
+                    <p>🚀 <b>Net AI Code Engine</b></p>
+                    <p style="font-size: 11px; opacity: 0.7;">Color: ${bgColor} | Center: ${isCentered}</p>
+                    <div style="background: #1e1e1e; padding: 12px; border-radius: 8px; position: relative; margin-top: 10px; border: 1px solid #333;">
+                        <pre style="margin: 0; font-family: monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; color: #d4d4d4;">${highlighted}</pre>
+
+                    </div>
+                </div>`;
+        }
+
+// 1. Expanded trigger to include shape names
+        const shapeTrigger = /(square|circle|rectangle|parallelogram|hexagon|pentagon|octagon|septgon|polygon|quadrilateral)/i;
+
+        if (shapeTrigger.test(lower)) {
+            let shape = lower.match(shapeTrigger)[0].toLowerCase();
+            let cssShape = "";
+            let shapeLabel = shape.charAt(0).toUpperCase() + shape.slice(1);
+
+            // 2. Logic to "Draw" the shape using CSS
+            switch(shape) {
+                case "circle":
+                    cssShape = "width: 100px; height: 100px; border-radius: 50%;";
+                    break;
+                case "rectangle":
+                    cssShape = "width: 150px; height: 80px;";
+                    break;
+                case "parallelogram":
+                    cssShape = "width: 150px; height: 80px; transform: skew(20deg);";
+                    break;
+                case "hexagon":
+                    cssShape = "width: 100px; height: 100px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);";
+                    break;
+                case "pentagon":
+                    cssShape = "width: 100px; height: 100px; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);";
+                    break;
+                case "octagon":
+                    cssShape = "width: 100px; height: 100px; clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);";
+                    break;
+                case "septgon": // (Heptagon)
+                    cssShape = "width: 100px; height: 100px; clip-path: polygon(50% 0%, 90% 20%, 100% 60%, 75% 100%, 25% 100%, 0% 60%, 10% 20%);";
+                    break;
+                case "quadrilateral":
+                case "polygon": // Randomly generated polygon
+                    let p1 = Math.floor(Math.random() * 40);
+                    let p2 = Math.floor(Math.random() * 40) + 60;
+                    cssShape = `width: 120px; height: 120px; clip-path: polygon(${p1}% 0%, ${p2}% 10%, 100% 70%, ${p2}% 100%, 0% 80%);`;
+                    shapeLabel = "Random " + shapeLabel;
+                    break;
+                default: // Square
+                    cssShape = "width: 100px; height: 100px;";
+            }
+
+            // 3. Construct the HTML code for the user
+            let generatedCode = '@!DOCTYPE html@\n@html@\n @head@\n  @style@\n    body { background: #0f0f0f; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; font-family: sans-serif; }\n    .shape { background: #ff924a; ' + cssShape + ' border: 2px solid white; }\n  @/style@\n @/head@\n @body@\n  @div style="text-align:center;"@\n    @div class="shape"@@/div@\n    @h2@' + shapeLabel + '@/h2@\n  @/div@\n @/body@\n@/html@';
+
+            let finalCode = generatedCode.replace(/@(.*?)@/g, '<$1>');
+            let highlighted = finalCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/(&lt;\/?html&gt;)/gi, '<span style="color: #569cd6;">$1</span>')
+                .replace(/(&lt;\/?div.*?&gt;)/gi, '<span style="color: #ff4d4d;">$1</span>')
+                .replace(/(&lt;\/?(style|head|body|h2)&gt;)/gi, '<span style="color: #c586c0;">$1</span>');
+
+            return `
+                <div style="border: 1px solid var(--primary-glow); padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.3);">
+                    <p>📐 <b>Geometry Engine: ${shapeLabel}</b></p>
+                    <div style="background: #1e1e1e; padding: 12px; border-radius: 8px; position: relative; margin-top: 10px; border: 1px solid #333;">
+                        <pre style="margin: 0; font-family: monospace; font-size: 11px; overflow-x: auto; white-space: pre-wrap; color: #d4d4d4;">${highlighted}</pre>
+                        <button onclick="navigator.clipboard.writeText(\`${finalCode.replace(/`/g, "\\`")}\`); this.innerText='COPIED!'" style="position: absolute; top: 5px; right: 5px; background: var(--primary-glow); border: none; color: white; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 10px;">COPY</button>
+                    </div>
+                </div>`;
+        }
+
+        let mathExp = lower.replace("pie", Math.PI).replace("pi", Math.PI).replace(/[^-e0-9+*/().^]/g, "");
+        if (mathExp && /[\d]/.test(mathExp)) {
             try {
-                const result = new Function(`return ${mathExpression.replace('^', '**')}`)();
-                return `🧮 <b>Result:</b> ${result}`;
+                const res = new Function(`return ${mathExp.replace('^', '**')}`)();
+                if (mode.includes("Deep")) return `<b>Analysis:</b> ${mathExp} <br> 🧮 <b>Answer:</b> ${res}`;
+                return `🧮 <b>Result:</b> ${res}`;
             } catch (e) { }
         }
 
-        return "I'm still learning! Try asking a math problem or ask about geometry.";
+        return "I'm still learning that. Try asking a different question!";
     }
 </script>
 </body>
